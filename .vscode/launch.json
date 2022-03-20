@@ -1,0 +1,16 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "type": "ruby-debug",
+      "request": "launch",
+      "program": "${workspaceFolder}/spo2ns.rb",
+      "programArgs": ["%d-%B-%y", "123", "890", "shopify payouts ENTIRE history to March 4 2022.csv"],
+      "useBundler": false
+    }
+  ]
+}

@@ -35,7 +35,6 @@ class SPORow
     # Same order as EXPECTED_HEADER
     @date           = Date.parse data.shift
     if !StatusException.valid_status?(@status = data.shift)
-      p "Fuck status bad = #{@status}"
       raise StatusException.new "Invalid status '#{@status}' must be one of: '#{StatusException.STATUSES}'" 
     end
     @charges        = data.shift.to_f
@@ -45,7 +44,7 @@ class SPORow
     @fees           = data.shift.to_f
     @retried_amount = data.shift.to_f
     @total          = data.shift.to_f
-    raise RangeError.new 'No code for negative Shopify payouts' if @total < 0 # even possible?
+    #raise RangeError.new 'No code for negative Shopify payouts' if @total < 0 # even possible?
     @currency       = String(data.shift) == 'CAD' ? 1 : 2 # CAD as primary currency IID == 1
   end
   attr_reader :status, :charges, :refunds, :adjustments, :reserved_funds, :fees, :retried_amount, :total, :currency
@@ -67,7 +66,7 @@ mapped = data.map { |line|
   end
 }
 
-CSV.generate { |csv|
+print CSV.generate { |csv|
   mapped.each { |po|
     next if po == nil
 
@@ -80,11 +79,11 @@ CSV.generate { |csv|
       [[date, credit, amount, 0, memo],
        [date, debit,  0, amount, memo]]
     end
-    csv << gl_entry(po.date, SHOP, BANK, po.total, "Shopify Payout to Bank #{po.date}. Import https://github.com/bradkrane/spo2ns")
-    csv << gl_entry(po.date, SHOP, FEES, po.total, "Shopify Fees Expense #{po.date}. Import https://github.com/bradkrane/spo2ns")
+    csv << gl_entry(po.date, SHOP, BANK, po.total, "Shopify Payout to Bank #{po.date}." )
+    csv << gl_entry(po.date, SHOP, FEES, po.total, "Shopify Fees Expense #{po.date}.")
     
     next unless po.has_refund?
     # reverse the fee by adjustment amount
-    csv << gl_entry(po.date, FEES, SHOP, po.adjustments, "Fees adjustments for customer refunds #{po.date}. Import https://github.com/bradkrane/spo2ns")
+    csv << gl_entry(po.date, FEES, SHOP, po.adjustments, "Fees adjustments for customer refunds #{po.date}.")
   }
 }
