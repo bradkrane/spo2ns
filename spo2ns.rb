@@ -1,3 +1,4 @@
+p ARGV
 # idea to ruby spo2ns <strftime fmt str> <shopify 'bank' acct> <fees acct> <po exports.csv>
 FILE = 'shopify payouts ENTIRE history to March 4 2022.csv' #String (ARGV.pop)
 FEES = '69160'#Integer(ARGV.pop)
@@ -5,10 +6,17 @@ SHOP = '11080'#Integer(ARGV.pop)
 BANK = '11030'
 DFMT = '%d-%b-%y'#String (ARGV.pop)
 
+# ruby spo2ns.rb %d-%b-%y 11030 11080 69160 "shopify payouts ENTIRE history to March 4 2022.csv"
+
+p FILE
+p FEES
+p SHOP
+p BANK
+p DFMT
+
 EXPECTED_HEADER = ["Payout Date", "Status", "Charges", "Refunds", "Adjustments", "Reserved Funds", "Fees", "Retried Amount", "Total", "Currency"]
 
 require 'csv'
-# file = ARGV.pop
 data = File.open('shopify payouts ENTIRE history to March 4 2022.csv') { |f| CSV.parse(f) }
 HEADER = data.shift
 
@@ -44,7 +52,6 @@ class SPORow
     @fees           = data.shift.to_f
     @retried_amount = data.shift.to_f
     @total          = data.shift.to_f
-    #raise RangeError.new 'No code for negative Shopify payouts' if @total < 0 # even possible?
     @currency       = String(data.shift) == 'CAD' ? 1 : 2 # CAD as primary currency IID == 1
   end
   attr_reader :status, :charges, :refunds, :adjustments, :reserved_funds, :fees, :retried_amount, :total, :currency
@@ -67,6 +74,7 @@ mapped = data.map { |line|
 }
 
 print CSV.generate { |csv|
+  csv << ['Date', 'Account', 'Credit', 'Debit', 'Memo']
   mapped.each { |po|
     next if po == nil
 
@@ -74,16 +82,11 @@ print CSV.generate { |csv|
     # and the fees to the Expense account from the Shopify acct
     # Debit Bank Total and Credit Shopify Bank total
     # Debit Fees Expense > Credit Shopify Bank fees
-    csv << ['Date', 'Account', 'Credit', 'Debit', 'Memo']
-    def gl_entry date, credit, debit, amount, memo
-      [[date, credit, amount, 0, memo],
-       [date, debit,  0, amount, memo]]
+    def gl_entry csv, date, credit, debit, amount, memo
+      csv << [date, credit, amount, 0, memo]
+      csv << [date, debit,  0, amount, memo]
     end
-    csv << gl_entry(po.date, SHOP, BANK, po.total, "Shopify Payout to Bank #{po.date}." )
-    csv << gl_entry(po.date, SHOP, FEES, po.total, "Shopify Fees Expense #{po.date}.")
-    
-    next unless po.has_refund?
-    # reverse the fee by adjustment amount
-    csv << gl_entry(po.date, FEES, SHOP, po.adjustments, "Fees adjustments for customer refunds #{po.date}.")
+    gl_entry(csv, po.date, SHOP, BANK, po.total, "Shopify Payout to Bank #{po.date}")
+    gl_entry(csv, po.date, SHOP, FEES, po.fees, "Shopify Fees Expense #{po.date}")
   }
 }
