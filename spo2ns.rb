@@ -1,18 +1,13 @@
-p ARGV
-# idea to ruby spo2ns <strftime fmt str> <shopify 'bank' acct> <fees acct> <po exports.csv>
-FILE = 'shopify payouts ENTIRE history to March 4 2022.csv' #String (ARGV.pop)
-FEES = '69160'#Integer(ARGV.pop)
-SHOP = '11080'#Integer(ARGV.pop)
-BANK = '11030'
-DFMT = '%d-%b-%y'#String (ARGV.pop)
+#!/usr/bin/ruby
+# Reads Shopify Payuouts export and generates a NetSuite CSV GL transaction import file 
 
-# ruby spo2ns.rb %d-%b-%y 11030 11080 69160 "shopify payouts ENTIRE history to March 4 2022.csv"
+print  'ruby spo2ns <strftime fmt str> <bank acct> <shopify "bank" acct> <fees acct> <po exports.csv>' if ARGV.length != 5
 
-p FILE
-p FEES
-p SHOP
-p BANK
-p DFMT
+FILE = String (ARGV.pop)
+FEES = Integer(ARGV.pop)
+SHOP = Integer(ARGV.pop)
+BANK = Integer(ARGV.pop)
+DFMT = String (ARGV.pop)
 
 EXPECTED_HEADER = ["Payout Date", "Status", "Charges", "Refunds", "Adjustments", "Reserved Funds", "Fees", "Retried Amount", "Total", "Currency"]
 
@@ -71,7 +66,7 @@ mapped = data.map { |line|
     throw e if e.class != StatusException
     nil
   end
-}
+} 
 
 print CSV.generate { |csv|
   csv << ['Date', 'Account', 'Credit', 'Debit', 'Memo']

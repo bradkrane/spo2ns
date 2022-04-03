@@ -57,6 +57,6 @@ build-iPhoneSimulator/
 
 
 # csv
-.csv
-.tsv
-.dsv
+*.csv
+*.tsv
+*.dsv
