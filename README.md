@@ -6,7 +6,7 @@ Adds all fees and creates 2 GL entries per day one for fees expense other for de
 
 ## Usage
 
-spo2ns.rb &lt;strftime format str&gt; &gt;bank acct&lt; &gt;shopify "bank" acct&lt; &gt;fees acct&lt; &gt;po exports.csv&lt;
+spo2ns.rb &lt;strftime format str&gt; &lt;bank acct&gt; &lt;shopify "bank" acct&gt; &lt;fees acct&gt; &lt;po exports.csv&gt;
 
 Ex:
 ```
