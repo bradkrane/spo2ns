@@ -1,6 +1,5 @@
 #!/usr/bin/ruby
-# Reads Shopify Payuouts export and generates a NetSuite CSV GL transaction import file 
-
+# Reads Shopify Payouts export CSV and generates a NetSuite CSV GL transaction import file
 print  'ruby spo2ns <strftime fmt str> <bank acct> <shopify "bank" acct> <fees acct> <po exports.csv>' if ARGV.length != 5
 
 FILE = String (ARGV.pop)
